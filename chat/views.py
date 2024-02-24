@@ -10,7 +10,13 @@ from .serializers import UserSerializer
 
 def get_auth_for_user(user):
     tokens = RefreshToken.for_user(user)
-    return {"user": UserSerializer(user).data}
+    return {
+        "user": UserSerializer(user).data,
+        "tokens": {
+            "refresh": str(tokens),
+            "access": str(tokens.access_token),
+        },
+    }
 
 
 class SignInView(APIView):
