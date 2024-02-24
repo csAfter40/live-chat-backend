@@ -9,7 +9,26 @@ asgiref==3.7.2
     #   -r requirements.txt
     #   django
 django==5.0.2
+    # via
+    #   -r requirements.txt
+    #   djangorestframework
+    #   djangorestframework-simplejwt
+djangorestframework==3.14.0
+    # via
+    #   -r requirements.txt
+    #   djangorestframework-simplejwt
+djangorestframework-simplejwt==5.3.1
     # via -r requirements.txt
+pillow==10.2.0
+    # via -r requirements.txt
+pyjwt==2.8.0
+    # via
+    #   -r requirements.txt
+    #   djangorestframework-simplejwt
+pytz==2024.1
+    # via
+    #   -r requirements.txt
+    #   djangorestframework
 sqlparse==0.4.4
     # via
     #   -r requirements.txt
