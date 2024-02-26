@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSerializer
+from .serializers import UserSerializer, SignUpUserSerializer
 
 
 def get_auth_for_user(user):
@@ -32,5 +32,16 @@ class SignInView(APIView):
         print("user: ", user)
         if not user:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+        user_data = get_auth_for_user(user)
+        return Response(user_data)
+
+
+class SignUpView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        new_user = SignUpUserSerializer(data=request.data)
+        new_user.is_valid(raise_exception=True)
+        user = new_user.save()
         user_data = get_auth_for_user(user)
         return Response(user_data)
