@@ -7,33 +7,148 @@
 asgiref==3.7.2
     # via
     #   -r requirements.txt
+    #   channels
+    #   channels-redis
+    #   daphne
     #   django
+attrs==23.2.0
+    # via
+    #   -r requirements.txt
+    #   automat
+    #   service-identity
+    #   twisted
+autobahn==23.6.2
+    # via
+    #   -r requirements.txt
+    #   daphne
+automat==22.10.0
+    # via
+    #   -r requirements.txt
+    #   twisted
+cffi==1.16.0
+    # via
+    #   -r requirements.txt
+    #   cryptography
+channels==4.0.0
+    # via
+    #   -r requirements.txt
+    #   channels-redis
+    #   django-channels-jwt-auth-middleware
+channels-redis==4.2.0
+    # via -r requirements.txt
+constantly==23.10.4
+    # via
+    #   -r requirements.txt
+    #   twisted
+cryptography==42.0.5
+    # via
+    #   -r requirements.txt
+    #   autobahn
+    #   pyopenssl
+    #   service-identity
+daphne==4.1.0
+    # via -r requirements.txt
 django==5.0.2
     # via
     #   -r requirements.txt
+    #   channels
+    #   django-channels-jwt-auth-middleware
     #   djangorestframework
     #   djangorestframework-simplejwt
+django-channels-jwt-auth-middleware==1.0.0
+    # via -r requirements.txt
 djangorestframework==3.14.0
     # via
     #   -r requirements.txt
     #   djangorestframework-simplejwt
 djangorestframework-simplejwt==5.3.1
     # via -r requirements.txt
+hyperlink==21.0.0
+    # via
+    #   -r requirements.txt
+    #   autobahn
+    #   twisted
+idna==3.6
+    # via
+    #   -r requirements.txt
+    #   hyperlink
+    #   twisted
+incremental==22.10.0
+    # via
+    #   -r requirements.txt
+    #   twisted
+msgpack==1.0.7
+    # via
+    #   -r requirements.txt
+    #   channels-redis
 pillow==10.2.0
     # via -r requirements.txt
+pyasn1==0.5.1
+    # via
+    #   -r requirements.txt
+    #   pyasn1-modules
+    #   service-identity
+pyasn1-modules==0.3.0
+    # via
+    #   -r requirements.txt
+    #   service-identity
+pycparser==2.21
+    # via
+    #   -r requirements.txt
+    #   cffi
 pyjwt==2.8.0
     # via
     #   -r requirements.txt
+    #   django-channels-jwt-auth-middleware
     #   djangorestframework-simplejwt
+pyopenssl==24.0.0
+    # via
+    #   -r requirements.txt
+    #   twisted
 pytz==2024.1
     # via
     #   -r requirements.txt
     #   djangorestframework
+redis==5.0.1
+    # via
+    #   -r requirements.txt
+    #   channels-redis
+service-identity==24.1.0
+    # via
+    #   -r requirements.txt
+    #   twisted
+six==1.16.0
+    # via
+    #   -r requirements.txt
+    #   automat
 sqlparse==0.4.4
     # via
     #   -r requirements.txt
     #   django
+twisted[tls]==23.10.0
+    # via
+    #   -r requirements.txt
+    #   daphne
+twisted-iocpsupport==1.0.4
+    # via
+    #   -r requirements.txt
+    #   twisted
+txaio==23.1.1
+    # via
+    #   -r requirements.txt
+    #   autobahn
+typing-extensions==4.10.0
+    # via
+    #   -r requirements.txt
+    #   twisted
 tzdata==2024.1
     # via
     #   -r requirements.txt
     #   django
+zope-interface==6.2
+    # via
+    #   -r requirements.txt
+    #   twisted
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

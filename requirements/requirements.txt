@@ -5,25 +5,103 @@
 #    pip-compile requirements.in
 #
 asgiref==3.7.2
-    # via django
+    # via
+    #   channels
+    #   channels-redis
+    #   daphne
+    #   django
+attrs==23.2.0
+    # via
+    #   automat
+    #   service-identity
+    #   twisted
+autobahn==23.6.2
+    # via daphne
+automat==22.10.0
+    # via twisted
+cffi==1.16.0
+    # via cryptography
+channels==4.0.0
+    # via
+    #   -r requirements.in
+    #   channels-redis
+    #   django-channels-jwt-auth-middleware
+channels-redis==4.2.0
+    # via -r requirements.in
+constantly==23.10.4
+    # via twisted
+cryptography==42.0.5
+    # via
+    #   autobahn
+    #   pyopenssl
+    #   service-identity
+daphne==4.1.0
+    # via -r requirements.in
 django==5.0.2
     # via
     #   -r requirements.in
+    #   channels
+    #   django-channels-jwt-auth-middleware
     #   djangorestframework
     #   djangorestframework-simplejwt
+django-channels-jwt-auth-middleware==1.0.0
+    # via -r requirements.in
 djangorestframework==3.14.0
     # via
     #   -r requirements.in
     #   djangorestframework-simplejwt
 djangorestframework-simplejwt==5.3.1
     # via -r requirements.in
+hyperlink==21.0.0
+    # via
+    #   autobahn
+    #   twisted
+idna==3.6
+    # via
+    #   hyperlink
+    #   twisted
+incremental==22.10.0
+    # via twisted
+msgpack==1.0.7
+    # via channels-redis
 pillow==10.2.0
     # via -r requirements.in
+pyasn1==0.5.1
+    # via
+    #   pyasn1-modules
+    #   service-identity
+pyasn1-modules==0.3.0
+    # via service-identity
+pycparser==2.21
+    # via cffi
 pyjwt==2.8.0
-    # via djangorestframework-simplejwt
+    # via
+    #   django-channels-jwt-auth-middleware
+    #   djangorestframework-simplejwt
+pyopenssl==24.0.0
+    # via twisted
 pytz==2024.1
     # via djangorestframework
+redis==5.0.1
+    # via channels-redis
+service-identity==24.1.0
+    # via twisted
+six==1.16.0
+    # via automat
 sqlparse==0.4.4
     # via django
+twisted[tls]==23.10.0
+    # via daphne
+twisted-iocpsupport==1.0.4
+    # via twisted
+txaio==23.1.1
+    # via autobahn
+typing-extensions==4.10.0
+    # via twisted
 tzdata==2024.1
     # via django
+zope-interface==6.2
+    # via twisted
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
