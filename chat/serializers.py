@@ -40,3 +40,14 @@ class SignUpUserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+
+class SearchSerializer(UserSerializer):
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["username", "full_name", "thumbnail", "status"]
+
+    def get_status(self, obj):
+        return "not-connected"
