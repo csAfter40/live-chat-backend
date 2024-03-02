@@ -3,8 +3,8 @@ from asgiref.sync import async_to_sync
 import json
 import base64
 from django.core.files.base import ContentFile
-from .serializers import UserSerializer, SearchSerializer
-from .models import User
+from .serializers import UserSerializer, SearchSerializer, RequestSerializer
+from .models import User, Connection
 from django.db.models import Q
 
 
@@ -34,16 +34,35 @@ class ChatConsumer(WebsocketConsumer):
 
         if data_source == "thumbnail":
             self.receive_thumbnail(data)
-        if data_source == "search":
+        elif data_source == "search":
             self.receive_search(data)
+        elif data_source == "request.connect":
+            self.receive_request_connect(data)
 
-        # print("receive", json.dumps(data, indent=2))
+        print("receive", json.dumps(data, indent=2))
 
     def delete_thumbnail(self):
         user = self.scope["user"]
         user.thumbnail.delete(save=True)
         serialized = UserSerializer(user)
         self.send_group(self.username, "thumbnail", serialized.data)
+
+    def receive_request_connect(self, data):
+        username = data["username"]
+        try:
+            receiver = User.objects.get(username=username)
+        except User.DoesNotExist:
+            print("Error: user not found")
+            return
+        connection, _ = Connection.objects.get_or_create(
+            sender=self.scope["user"], receiver=receiver
+        )
+        print("connection instance: ", connection, "is created? ", _)
+        serialized = RequestSerializer(connection)
+        self.send_group(connection.sender.username, "request.connect", serialized.data)
+        self.send_group(
+            connection.receiver.username, "request.connect", serialized.data
+        )
 
     def receive_search(self, data):
         query = data.get("query")
