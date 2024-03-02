@@ -38,6 +38,8 @@ class ChatConsumer(WebsocketConsumer):
             self.receive_search(data)
         elif data_source == "request.connect":
             self.receive_request_connect(data)
+        elif data_source == "request.list":
+            self.receive_request_list(data)
 
         print("receive", json.dumps(data, indent=2))
 
@@ -80,6 +82,14 @@ class ChatConsumer(WebsocketConsumer):
 
         # Send updated user data
         self.send_group(self.username, "search", serialized.data)
+
+    def receive_request_list(self, data):
+        user = self.scope["user"]
+        connections = Connection.objects.filter(receiver=user, approved=False)
+        serialized = RequestSerializer(connections, many=True)
+
+        # Send updated user data
+        self.send_group(self.username, "request.list", serialized.data)
 
     def receive_thumbnail(self, data):
         user = self.scope["user"]
