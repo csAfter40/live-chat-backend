@@ -5,7 +5,7 @@ import base64
 from django.core.files.base import ContentFile
 from .serializers import UserSerializer, SearchSerializer, RequestSerializer
 from .models import User, Connection
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -69,17 +69,35 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     def receive_search(self, data):
+        user = self.scope["user"]
         query = data.get("query")
-        users = User.objects.filter(
-            Q(first_name__istartswith=query)
-            | Q(last_name__istartswith=query)
-            | Q(username__istartswith=query)
-        ).exclude(username=self.username)
-        # .annotate(
-        #     pending_them=...
-        #     pending_me=...
-        #     connected=...
-        # )
+        users = (
+            User.objects.filter(
+                Q(first_name__istartswith=query)
+                | Q(last_name__istartswith=query)
+                | Q(username__istartswith=query)
+            )
+            .exclude(username=self.username)
+            .annotate(
+                pending_them=Exists(
+                    Connection.objects.filter(
+                        sender=user, receiver=OuterRef("id"), approved=False
+                    )
+                ),
+                pending_me=Exists(
+                    Connection.objects.filter(
+                        sender=OuterRef("id"), receiver=user, approved=False
+                    )
+                ),
+                connected=Exists(
+                    Connection.objects.filter(
+                        Q(sender=OuterRef("id"), receiver=user)
+                        | Q(receiver=OuterRef("id"), sender=user),
+                        approved=True,
+                    )
+                ),
+            )
+        )
         serialized = SearchSerializer(users, many=True)
 
         self.send_group(self.username, "search", serialized.data)
