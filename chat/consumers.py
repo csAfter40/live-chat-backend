@@ -40,6 +40,8 @@ class ChatConsumer(WebsocketConsumer):
             self.receive_request_connect(data)
         elif data_source == "request.list":
             self.receive_request_list(data)
+        elif data_source == "request.accept":
+            self.receive_request_accept(data)
 
         print("receive", json.dumps(data, indent=2))
 
@@ -80,15 +82,26 @@ class ChatConsumer(WebsocketConsumer):
         # )
         serialized = SearchSerializer(users, many=True)
 
-        # Send updated user data
         self.send_group(self.username, "search", serialized.data)
 
     def receive_request_list(self, data):
         user = self.scope["user"]
         connections = Connection.objects.filter(receiver=user, approved=False)
         serialized = RequestSerializer(connections, many=True)
+        self.send_group(self.username, "request.list", serialized.data)
 
-        # Send updated user data
+    def receive_request_accept(self, data):
+        request_id = data.get("id")
+        user = self.scope["user"]
+        connection = Connection.objects.get(pk=request_id)
+        connection.approved = True
+        connection.save()
+        connection.refresh_from_db()
+        serialized = RequestSerializer(connection)
+        self.send_group(self.username, "request.accept", serialized.data)
+        # send updated connections list
+        connections = Connection.objects.filter(receiver=user, approved=False)
+        serialized = RequestSerializer(connections, many=True)
         self.send_group(self.username, "request.list", serialized.data)
 
     def receive_thumbnail(self, data):
