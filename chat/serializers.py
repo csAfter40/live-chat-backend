@@ -67,3 +67,21 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Connection
         fields = ["id", "sender", "receiver", "created"]
+
+
+class FriendSerializer(serializers.ModelSerializer):
+
+    friend = serializers.SerializerMethodField()
+    preview = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Connection
+        fields = ["id", "friend", "preview", "updated"]
+
+    def get_friend(self, obj):
+        if obj.sender.username == self.context["user"].username:
+            return UserSerializer(obj.receiver).data
+        return UserSerializer(obj.sender).data
+
+    def get_preview(self, obj):
+        return "Preview string will come here"
