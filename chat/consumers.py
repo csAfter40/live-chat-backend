@@ -3,7 +3,12 @@ from asgiref.sync import async_to_sync
 import json
 import base64
 from django.core.files.base import ContentFile
-from .serializers import UserSerializer, SearchSerializer, RequestSerializer
+from .serializers import (
+    UserSerializer,
+    SearchSerializer,
+    RequestSerializer,
+    FriendSerializer,
+)
 from .models import User, Connection
 from django.db.models import Q, Exists, OuterRef
 
@@ -42,6 +47,8 @@ class ChatConsumer(WebsocketConsumer):
             self.receive_request_list(data)
         elif data_source == "request.accept":
             self.receive_request_accept(data)
+        elif data_source == "friend.list":
+            self.receive_friend_list(data)
 
         print("receive", json.dumps(data, indent=2))
 
@@ -102,6 +109,14 @@ class ChatConsumer(WebsocketConsumer):
 
         self.send_group(self.username, "search", serialized.data)
 
+    def receive_friend_list(self, data):
+        user = self.scope["user"]
+        connections = Connection.objects.filter(
+            Q(receiver=user) | Q(sender=user), approved=True
+        )
+        serialized = FriendSerializer(connections, context={"user": user}, many=True)
+        self.send_group(self.username, "friend.list", serialized.data)
+
     def receive_request_list(self, data):
         user = self.scope["user"]
         connections = Connection.objects.filter(receiver=user, approved=False)
@@ -149,7 +164,8 @@ class ChatConsumer(WebsocketConsumer):
             - source: where it originated from
             - data: data as a dict
         """
-        data.pop("type")
+        # error occurs when type is removed!!
+        # data.pop("type")
         """
         return data: 
             - source: where it originated from
