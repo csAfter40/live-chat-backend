@@ -8,8 +8,9 @@ from .serializers import (
     SearchSerializer,
     RequestSerializer,
     FriendSerializer,
+    MessageSerializer,
 )
-from .models import User, Connection
+from .models import User, Connection, Message
 from django.db.models import Q, Exists, OuterRef
 
 
@@ -49,6 +50,8 @@ class ChatConsumer(WebsocketConsumer):
             self.receive_request_accept(data)
         elif data_source == "friend.list":
             self.receive_friend_list(data)
+        elif data_source == "message.send":
+            self.receive_message_send(data)
 
         print("receive", json.dumps(data, indent=2))
 
@@ -68,7 +71,6 @@ class ChatConsumer(WebsocketConsumer):
         connection, _ = Connection.objects.get_or_create(
             sender=self.scope["user"], receiver=receiver
         )
-        print("connection instance: ", connection, "is created? ", _)
         serialized = RequestSerializer(connection)
         self.send_group(connection.sender.username, "request.connect", serialized.data)
         self.send_group(
@@ -109,6 +111,22 @@ class ChatConsumer(WebsocketConsumer):
 
         self.send_group(self.username, "search", serialized.data)
 
+    def receive_message_send(self, data):
+        user = self.scope["user"]
+        connectionId = data.get("connectionId")
+        messageText = data.get("messageText")
+        try:
+            connection = Connection.objects.get(pk=connectionId)
+        except Connection.DoesNotExist:
+            print("Error: connection object not found")
+            return
+        message = Message.objects.create(
+            connection=connection, sender=user, text=messageText
+        )
+        serialized = MessageSerializer(message)
+        print(serialized.data)
+        # self.send_group(self.username, "message.send", serialized.data)
+
     def receive_friend_list(self, data):
         user = self.scope["user"]
         connections = Connection.objects.filter(
@@ -136,6 +154,7 @@ class ChatConsumer(WebsocketConsumer):
         connections = Connection.objects.filter(receiver=user, approved=False)
         serialized = RequestSerializer(connections, many=True)
         self.send_group(self.username, "request.list", serialized.data)
+        self.receive_friend_list(data)  # refresh friend list for the user
 
     def receive_thumbnail(self, data):
         user = self.scope["user"]
