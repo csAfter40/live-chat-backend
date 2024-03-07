@@ -40,4 +40,4 @@ class Message(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} -> {self.text}"
+        return f"{self.sender.username} -> {self.text}"
