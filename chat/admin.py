@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Connection
+from .models import User, Connection, Message
 
 
 # Register your models here.
@@ -11,4 +11,9 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(Connection)
 class ConnectionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
     pass
