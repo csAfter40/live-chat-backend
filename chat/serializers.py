@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Connection
+from .models import User, Connection, Message
 
 
 def capitalize_all(sentence):
@@ -84,4 +84,11 @@ class FriendSerializer(serializers.ModelSerializer):
         return UserSerializer(obj.sender).data
 
     def get_preview(self, obj):
-        return "Preview string will come here"
+        return "New connection"
+
+
+class MessageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
+        fields = ["id", "connection", "sender", "text", "created"]
