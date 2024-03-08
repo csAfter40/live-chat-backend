@@ -12,6 +12,7 @@ from .serializers import (
 )
 from .models import User, Connection, Message
 from django.db.models import Q, Exists, OuterRef
+from django.core.paginator import Paginator
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -52,6 +53,8 @@ class ChatConsumer(WebsocketConsumer):
             self.receive_friend_list(data)
         elif data_source == "message.send":
             self.receive_message_send(data)
+        elif data_source == "message.list":
+            self.receive_message_list(data)
 
         print("receive", json.dumps(data, indent=2))
 
@@ -110,6 +113,19 @@ class ChatConsumer(WebsocketConsumer):
         serialized = SearchSerializer(users, many=True)
 
         self.send_group(self.username, "search", serialized.data)
+
+    def receive_message_list(self, data):
+        connectionId = data.get("connectionId")
+        page = data.get("page")
+        try:
+            connection = Connection.objects.get(pk=connectionId)
+        except Connection.DoesNotExist:
+            print(f"Connection pk={connectionId} does not exist")
+            return
+
+        messages = Message.objects.filter(connection=connection).order_by("-created")
+        serialized = MessageSerializer(messages, many=True)
+        self.send_group(self.username, "message.list", serialized.data)
 
     def receive_message_send(self, data):
         user = self.scope["user"]
