@@ -141,7 +141,8 @@ class ChatConsumer(WebsocketConsumer):
         )
         serialized = MessageSerializer(message)
         print(serialized.data)
-        # self.send_group(self.username, "message.send", serialized.data)
+        self.send_group(connection.sender.username, "message.send", serialized.data)
+        self.send_group(connection.receiver.username, "message.send", serialized.data)
 
     def receive_friend_list(self, data):
         user = self.scope["user"]
