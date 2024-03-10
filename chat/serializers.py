@@ -73,6 +73,7 @@ class FriendSerializer(serializers.ModelSerializer):
 
     friend = serializers.SerializerMethodField()
     preview = serializers.SerializerMethodField()
+    updated = serializers.SerializerMethodField()
 
     class Meta:
         model = Connection
@@ -84,11 +85,23 @@ class FriendSerializer(serializers.ModelSerializer):
         return UserSerializer(obj.sender).data
 
     def get_preview(self, obj):
-        return "New connection"
+        return obj.latest_text or "New connection"
+
+    def get_updated(self, obj):
+        date = obj.latest_created or obj.updated
+        return date.isoformat()
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    sender = UserSerializer()
+    receiver = serializers.SerializerMethodField()
 
     class Meta:
         model = Message
-        fields = ["id", "connection", "sender", "text", "created"]
+        fields = ["id", "connection", "sender", "receiver", "text", "created"]
+
+    def get_receiver(self, obj):
+        if obj.connection.sender.username == obj.sender.username:
+            return UserSerializer(obj.connection.receiver).data
+        else:
+            return UserSerializer(obj.connection.sender).data

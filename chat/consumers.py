@@ -12,7 +12,7 @@ from .serializers import (
 )
 from .models import User, Connection, Message
 from django.db.models import Q, Exists, OuterRef
-from django.core.paginator import Paginator
+from django.db.models.functions import Coalesce
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -140,14 +140,22 @@ class ChatConsumer(WebsocketConsumer):
             connection=connection, sender=user, text=messageText
         )
         serialized = MessageSerializer(message)
-        print(serialized.data)
         self.send_group(connection.sender.username, "message.send", serialized.data)
         self.send_group(connection.receiver.username, "message.send", serialized.data)
 
     def receive_friend_list(self, data):
         user = self.scope["user"]
-        connections = Connection.objects.filter(
-            Q(receiver=user) | Q(sender=user), approved=True
+        # latest message subquery
+        latest_message = Message.objects.filter(connection=OuterRef("id")).order_by(
+            "-created"
+        )[:1]
+        connections = (
+            Connection.objects.filter(Q(receiver=user) | Q(sender=user), approved=True)
+            .annotate(
+                latest_text=latest_message.values("text"),
+                latest_created=latest_message.values("created"),
+            )
+            .order_by(Coalesce("latest_created", "updated").desc())
         )
         serialized = FriendSerializer(connections, context={"user": user}, many=True)
         self.send_group(self.username, "friend.list", serialized.data)
