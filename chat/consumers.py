@@ -180,6 +180,13 @@ class ChatConsumer(WebsocketConsumer):
         serialized = RequestSerializer(connections, many=True)
         self.send_group(self.username, "request.list", serialized.data)
         self.receive_friend_list(data)  # refresh friend list for the user
+        # refresh friend's friends list
+        serialized_friend = FriendSerializer(
+            connection, context={"user": connection.sender}
+        )
+        self.send_group(
+            connection.sender.username, "friend.new", serialized_friend.data
+        )
 
     def receive_thumbnail(self, data):
         user = self.scope["user"]
