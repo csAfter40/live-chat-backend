@@ -85,10 +85,15 @@ class FriendSerializer(serializers.ModelSerializer):
         return UserSerializer(obj.sender).data
 
     def get_preview(self, obj):
+        if not hasattr(obj, "latest_text"):
+            return "New connection"
         return obj.latest_text or "New connection"
 
     def get_updated(self, obj):
-        date = obj.latest_created or obj.updated
+        if not hasattr(obj, "latest_created"):
+            date = obj.updated
+        else:
+            date = obj.latest_created or obj.updated
         return date.isoformat()
 
 
