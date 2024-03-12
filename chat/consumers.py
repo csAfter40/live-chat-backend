@@ -55,6 +55,10 @@ class ChatConsumer(WebsocketConsumer):
             self.receive_message_send(data)
         elif data_source == "message.list":
             self.receive_message_list(data)
+        elif data_source == "message.type":
+            self.receive_message_type(data)
+        elif data_source == "typing.on":
+            self.receive_typing_on(data)
 
         print("receive", json.dumps(data, indent=2))
 
@@ -113,6 +117,21 @@ class ChatConsumer(WebsocketConsumer):
         serialized = SearchSerializer(users, many=True)
 
         self.send_group(self.username, "search", serialized.data)
+
+    def receive_typing_on(self, data):
+        friend = data.get("friend")
+        self.send_group(
+            friend["username"],
+            "typing.on",
+            {"friend_username": self.scope["user"].username},
+        )
+
+    def receive_message_type(self, data):
+        user = self.scope["user"]
+        recipient_username = data.get("username")
+
+        data = {"username": user.username}
+        self.send_group(recipient_username, "message.type", data)
 
     def receive_message_list(self, data):
         connectionId = data.get("connectionId")
