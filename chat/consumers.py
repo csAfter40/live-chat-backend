@@ -136,15 +136,23 @@ class ChatConsumer(WebsocketConsumer):
     def receive_message_list(self, data):
         connectionId = data.get("connectionId")
         page = data.get("page")
+        page_size = 12
         try:
             connection = Connection.objects.get(pk=connectionId)
         except Connection.DoesNotExist:
             print(f"Connection pk={connectionId} does not exist")
             return
 
-        messages = Message.objects.filter(connection=connection).order_by("-created")
+        messages = Message.objects.filter(connection=connection).order_by("-created")[
+            page * page_size : (page + 1) * page_size
+        ]
+        messages_count = Message.objects.filter(connection=connection).count()
         serialized = MessageSerializer(messages, many=True)
-        self.send_group(self.username, "message.list", serialized.data)
+        data = {
+            "messages": serialized.data,
+            "next": page + 1 if messages_count > page * page_size else None,
+        }
+        self.send_group(self.username, "message.list", data)
 
     def receive_message_send(self, data):
         user = self.scope["user"]
